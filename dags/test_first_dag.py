@@ -12,7 +12,6 @@ with DAG(
         image='syogesh9/airflow-dags-test:latest',
         cmds=['python', '-m', 'scripts.task1'],
         namespace='airflow-dag-test',
-        get_logs=True,
         dag=dag,
     )
 
@@ -22,7 +21,6 @@ with DAG(
         image='syogesh9/airflow-dags-test:latest',
         cmds=['python', '-m', 'scripts.task2'],
         namespace='airflow-dag-test',
-        get_logs=True,
         dag=dag,
     )
 
@@ -32,7 +30,6 @@ with DAG(
         image='syogesh9/airflow-dags-test:latest',
         cmds=['python', '-m', 'scripts.task3'],
         namespace='airflow-dag-test',
-        get_logs=True,
         dag=dag,
     )
 
