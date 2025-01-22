@@ -5,3 +5,4 @@ dependencies:
   - python >=3.10
   # Airflow
   - apache-airflow
+  - apache-airflow-providers-cncf-kubernetes

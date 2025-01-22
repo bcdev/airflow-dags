@@ -1,30 +1,39 @@
 from airflow import DAG
-from airflow.operators.python import PythonOperator
-from scripts.task1 import task1_function
-from scripts.task2 import task2_function
-from scripts.task3 import task3_function
+from airflow.providers.cncf.kubernetes.operators.pod import \
+    KubernetesPodOperator
 
 with DAG(
     'first_test_dag',
     schedule_interval=None,
 ) as dag:
-
-    task1 = PythonOperator(
+    task1 = KubernetesPodOperator(
         task_id='task1',
-        python_callable=task1_function,
+        name='task1-pod',
+        image='syogesh9/airflow-dags-test:latest',
+        cmds=['python', '-m', 'scripts.task1'],
+        namespace='airflow-dag-test',
+        get_logs=True,
         dag=dag,
     )
 
-    task2 = PythonOperator(
+    task2 = KubernetesPodOperator(
         task_id='task2',
-        python_callable=task2_function,
+        name='task2-pod',
+        image='syogesh9/airflow-dags-test:latest',
+        cmds=['python', '-m', 'scripts.task2'],
+        namespace='airflow-dag-test',
+        get_logs=True,
         dag=dag,
     )
 
-    task3 = PythonOperator(
+    task3 = KubernetesPodOperator(
         task_id='task3',
-        python_callable=task3_function,
+        name='task3-pod',
+        image='syogesh9/airflow-dags-test:latest',
+        cmds=['python', '-m', 'scripts.task3'],
+        namespace='airflow-dag-test',
+        get_logs=True,
         dag=dag,
     )
 
-    task1 >> task2 >> task3
+task1 >> task2 >> task3
