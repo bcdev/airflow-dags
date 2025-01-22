@@ -12,6 +12,7 @@ with DAG(
         image='syogesh9/airflow-dags-test:latest',
         cmds=['python', '-m', 'scripts.task1'],
         dag=dag,
+        log_events_on_failure=True,
         get_logs=False,
         do_xcom_push=False,
         in_cluster=True,
