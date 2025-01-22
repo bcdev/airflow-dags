@@ -1,0 +1,7 @@
+name: airflow-dags
+channels:
+  - conda-forge
+dependencies:
+  - python >=3.10
+  # Airflow
+  - apache-airflow
