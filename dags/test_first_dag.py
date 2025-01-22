@@ -11,7 +11,6 @@ with DAG(
         name='task1-pod',
         image='syogesh9/airflow-dags-test:latest',
         cmds=['python', '-m', 'scripts.task1'],
-        namespace='airflow-dag-test',
         dag=dag,
     )
 
@@ -20,7 +19,6 @@ with DAG(
         name='task2-pod',
         image='syogesh9/airflow-dags-test:latest',
         cmds=['python', '-m', 'scripts.task2'],
-        namespace='airflow-dag-test',
         dag=dag,
     )
 
@@ -29,7 +27,6 @@ with DAG(
         name='task3-pod',
         image='syogesh9/airflow-dags-test:latest',
         cmds=['python', '-m', 'scripts.task3'],
-        namespace='airflow-dag-test',
         dag=dag,
     )
 
