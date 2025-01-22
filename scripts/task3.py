@@ -1,3 +1,5 @@
 def task3_function():
     print("Task 3 executed.")
-    # Add your task1 logic here
+
+if __name__ == "__main__":
+    task3_function()
