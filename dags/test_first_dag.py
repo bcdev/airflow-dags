@@ -12,6 +12,10 @@ with DAG(
         image='syogesh9/airflow-dags-test:latest',
         cmds=['python', '-m', 'scripts.task1'],
         dag=dag,
+        get_logs=True,
+        do_xcom_push=False,
+        in_cluster=True,
+        namespace='default',
     )
 
     task2 = KubernetesPodOperator(
