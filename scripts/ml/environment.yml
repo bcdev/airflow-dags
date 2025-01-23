@@ -9,3 +9,5 @@ dependencies:
   # MLFlow
   - mlflow
   - git
+  # ML
+  - scikit-learn
