@@ -1,13 +1,15 @@
 import mlflow
 from sklearn.linear_model import LogisticRegression
 from sklearn.datasets import load_iris
+import pandas as pd
+
 
 X, y = load_iris(return_X_y=True)
 
-model = LogisticRegression(max_iter=20)
-model.fit(X[:5], y[:5])
+model = LogisticRegression(max_iter=200)
+model.fit(X, y)
 
-mlflow.set_tracking_uri("http://mlflow.default.svc.cluster.local:5000")
+mlflow.set_tracking_uri("http://127.0.0.1:5001")
 
 with mlflow.start_run():
     print("Begin logging")
@@ -21,4 +23,10 @@ with mlflow.start_run():
     print("End logging")
 
 model = mlflow.pyfunc.load_model("models:/tiny_iris_classifier/latest")
+
+sample_data = pd.DataFrame([[5.1, 3.5, 1.4, 0.2]],
+  columns=["sepal length (cm)", "sepal width (cm)", "petal length (cm)", "petal width (cm)"])
+
+prediction = model.predict(sample_data)
+print(prediction)
 
