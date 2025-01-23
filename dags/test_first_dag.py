@@ -17,6 +17,7 @@ with DAG(
         do_xcom_push=False,
         in_cluster=True,
         namespace='airflow',
+        is_delete_operator_pod=False
     )
 
     task2 = KubernetesPodOperator(
