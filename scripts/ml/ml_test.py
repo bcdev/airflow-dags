@@ -1,6 +1,6 @@
 import mlflow
 
-mlflow.set_tracking_uri("http://127.0.0.1:5000")
+mlflow.set_tracking_uri("http://mlflow.default.svc.cluster.local:5000")
 
 with mlflow.start_run():
     print("Begin logging")
