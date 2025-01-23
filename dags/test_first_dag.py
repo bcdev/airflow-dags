@@ -14,10 +14,6 @@ with DAG(
         dag=dag,
         log_events_on_failure=True,
         get_logs=True,
-        do_xcom_push=False,
-        in_cluster=True,
-        namespace='airflow',
-        is_delete_operator_pod=True
     )
 
     task2 = KubernetesPodOperator(
@@ -26,6 +22,8 @@ with DAG(
         image='syogesh9/airflow-dags-test:v5',
         cmds=['python', '-m', 'task2'],
         dag=dag,
+        log_events_on_failure=True,
+        get_logs=True,
     )
 
     task3 = KubernetesPodOperator(
@@ -34,6 +32,8 @@ with DAG(
         image='syogesh9/airflow-dags-test:v5',
         cmds=['python', '-m', 'task3'],
         dag=dag,
+        log_events_on_failure=True,
+        get_logs=True,
     )
 
 task1 >> task2 >> task3
