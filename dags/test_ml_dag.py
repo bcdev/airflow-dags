@@ -9,7 +9,7 @@ with DAG(
     task1 = KubernetesPodOperator(
         task_id='ml_test_task',
         name='ml_test-pod',
-        image='syogesh9/airflow-dags-ml-test:v1',
+        image='syogesh9/airflow-dags-ml-test:v2',
         cmds=['python', '-m', 'ml_test'],
         dag=dag,
         log_events_on_failure=True,
