@@ -13,7 +13,7 @@ with DAG(
         cmds=['python', '-m', 'task1'],
         dag=dag,
         log_events_on_failure=True,
-        get_logs=False,
+        get_logs=True,
         do_xcom_push=False,
         in_cluster=True,
         namespace='airflow',
