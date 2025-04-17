@@ -45,6 +45,8 @@ jobs:
           mv tmp new_dags
 
       - name: Commit updated DAGs
+        env:
+          REPO_URL: https://${{ secrets.CDR_PAT }}@github.com/bcdev/airflow-dags.git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
