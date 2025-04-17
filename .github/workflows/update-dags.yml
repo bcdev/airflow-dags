@@ -51,6 +51,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          rm -rf dags/
+          mkdir -p dags
           cp -r $GITHUB_WORKSPACE/dags ./dags
           
           git add dags
