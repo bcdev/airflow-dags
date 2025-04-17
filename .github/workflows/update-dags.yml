@@ -1,0 +1,51 @@
+name: Aggregate & Update DAGs
+
+on:
+  repository_dispatch:
+    types: [ dag-updated ]
+
+concurrency:
+  group: update-dags
+  cancel-in-progress: true
+
+jobs:
+  update_dags:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout umbrella + submodules (sparse)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: recursive
+#          persist-credentials: true
+          sparse-checkout: |
+            /dags
+          sparse-checkout-cone-mode: true
+
+      - name: Gather DAGs
+        run: |
+          rm -rf old_dags && mv dags old_dags || true
+          mkdir tmp
+          git submodule foreach --recursive '
+            echo "Processing $name ($path)..."
+            if [ -d "$toplevel/$path/dags" ]; then
+              mkdir -p "$toplevel/dags/$name"
+              cp -r "$toplevel/$path/dags/." "$toplevel/dags/$name/"
+              echo "Copied DAGs from $name:"
+              find "$toplevel/$path/dags" -name "*.py"
+            else
+              echo "No dags/ directory found in $name"
+            fi
+          '
+          mv tmp new_dags
+
+      - name: Commit updated DAGs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add new_dags old_dags
+          git diff --cached --quiet || (
+            git commit -m "Update DAGs from submodules" &&
+            git push
+          )
