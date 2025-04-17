@@ -55,7 +55,16 @@ jobs:
           # git remote remove origin
           git config --get user.name && git config --get user.email
           # git remote set-url origin https://x-access-token:${{ secrets.CDR_PUSH_PAT }}@github.com/bcdev/airflow-dags.git
+          
+          mkdir -p /tmp/repo
+          cd /tmp/repo
+          git clone https://x-access-token:${{ secrets.CDR_PUSH_PAT }}@github.com/bcdev/airflow-dags.git .
+
+          cp -r $GITHUB_WORKSPACE/new_dags ./new_dags
+          cp -r $GITHUB_WORKSPACE/old_dags ./old_dags
+          
           git add new_dags old_dags
           git commit -m "Update DAGs from submodules"
-          GIT_TRACE=1 git push "https://x-access-token:${{ secrets.CDR_PUSH_PAT }}@github.com/bcdev/airflow-dags.git" HEAD:main
+          # GIT_TRACE=1 git push "https://x-access-token:${{ secrets.CDR_PUSH_PAT }}@github.com/bcdev/airflow-dags.git" HEAD:main
+          git push origin HEAD:main
          
