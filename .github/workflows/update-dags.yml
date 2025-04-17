@@ -35,7 +35,7 @@ jobs:
               mkdir -p "$toplevel/tmp/$name"
               cp -r "$toplevel/$path/dags/." "$toplevel/tmp/$name/"
               echo "Copied DAGs from $name:"
-              find "$toplevel/$path/dags" -name "*.py"
+              ls -la "$toplevel/$path/dags"
             else
               echo "No dags/ directory found in $name"
             fi
@@ -51,10 +51,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          cp -r $GITHUB_WORKSPACE/new_dags ./new_dags
-          cp -r $GITHUB_WORKSPACE/old_dags ./old_dags
+          cp -r $GITHUB_WORKSPACE/dags ./dags
           
-          git add new_dags old_dags
+          git add dags
           if ! git diff --cached --quiet; then
             git commit -m "Update DAGs from submodules"
             git push origin HEAD:main
