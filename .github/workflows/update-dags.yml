@@ -20,17 +20,15 @@ jobs:
           fetch-depth: 1
           submodules: recursive
           token: ${{ secrets.SUBMODULE_PAT }}
-#          persist-credentials: true
           sparse-checkout: |
             dags
-            old_dags
-            new_dags
           sparse-checkout-cone-mode: true
 
       - name: Gather DAGs
         run: |
           rm -rf old_dags && mv dags old_dags || true
-          mkdir tmp
+          rm -rf tmp dags
+          mkdir -p tmp
           git submodule foreach --recursive '
             echo "Processing $name ($path)..."
             if [ -d "$toplevel/$path/dags" ]; then
@@ -42,31 +40,24 @@ jobs:
               echo "No dags/ directory found in $name"
             fi
           '
-          mv tmp new_dags
-
-      - name: Check Authenticated User
-        run: |
-          curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/user
+          mv tmp dags
 
       - name: Commit updated DAGs
         run: |
-          
-          # git remote set-url origin https://x-access-token:${{ secrets.CDR_PUSH_PAT }}@github.com/bcdev/airflow-dags.git
-          
           mkdir -p /tmp/repo
           cd /tmp/repo
           git clone https://x-access-token:${{ secrets.CDR_PUSH_PAT }}@github.com/bcdev/airflow-dags.git .
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # git remote remove origin
-          git config --get user.name && git config --get user.email
 
           cp -r $GITHUB_WORKSPACE/new_dags ./new_dags
           cp -r $GITHUB_WORKSPACE/old_dags ./old_dags
           
           git add new_dags old_dags
-          git commit -m "Update DAGs from submodules"
-          # GIT_TRACE=1 git push "https://x-access-token:${{ secrets.CDR_PUSH_PAT }}@github.com/bcdev/airflow-dags.git" HEAD:main
-          git push origin HEAD:main
-         
+          if ! git diff --cached --quiet; then
+            git commit -m "Update DAGs from submodules"
+            git push origin HEAD:main
+          else
+            echo "No changes detected in dags folder"
+          fi
