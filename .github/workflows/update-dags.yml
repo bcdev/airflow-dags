@@ -34,8 +34,8 @@ jobs:
           git submodule foreach --recursive '
             echo "Processing $name ($path)..."
             if [ -d "$toplevel/$path/dags" ]; then
-              mkdir -p "$toplevel/dags/$name"
-              cp -r "$toplevel/$path/dags/." "$toplevel/dags/$name/"
+              mkdir -p "$toplevel/tmp/$name"
+              cp -r "$toplevel/$path/dags/." "$toplevel/tmp/$name/"
               echo "Copied DAGs from $name:"
               find "$toplevel/$path/dags" -name "*.py"
             else
