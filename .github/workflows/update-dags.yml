@@ -54,7 +54,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           # git remote remove origin
           git config --get user.name && git config --get user.email
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/bcdev/airflow-dags.git
+          git remote set-url origin https://x-access-token:${{ secrets.CDR_PUSH_PAT }}@github.com/bcdev/airflow-dags.git
           git add new_dags old_dags
           git commit -m "Update DAGs from submodules"
           git push origin HEAD:main
