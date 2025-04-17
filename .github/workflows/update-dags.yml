@@ -23,6 +23,8 @@ jobs:
 #          persist-credentials: true
           sparse-checkout: |
             dags
+            old_dags
+            new_dags
           sparse-checkout-cone-mode: true
 
       - name: Gather DAGs
