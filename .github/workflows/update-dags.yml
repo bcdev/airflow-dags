@@ -57,5 +57,5 @@ jobs:
           # git remote set-url origin https://x-access-token:${{ secrets.CDR_PUSH_PAT }}@github.com/bcdev/airflow-dags.git
           git add new_dags old_dags
           git commit -m "Update DAGs from submodules"
-          git push "https://x-access-token:${{ secrets.CDR_PUSH_PAT }}@github.com/bcdev/airflow-dags.git" HEAD:main
+          GIT_TRACE=1 git push "https://x-access-token:${{ secrets.CDR_PUSH_PAT }}@github.com/bcdev/airflow-dags.git" HEAD:main
          
