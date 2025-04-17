@@ -44,6 +44,10 @@ jobs:
           '
           mv tmp new_dags
 
+      - name: Check Authenticated User
+        run: |
+          curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/user
+
       - name: Commit updated DAGs
         run: |
           git config user.name "github-actions[bot]"
