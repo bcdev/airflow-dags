@@ -3,7 +3,6 @@ from datetime import datetime
 from kubernetes.client import models as k8s
 from airflow.operators.python import PythonOperator
 
-
 executor_config = {
     "pod_override": k8s.V1Pod(
         spec=k8s.V1PodSpec(
@@ -24,13 +23,16 @@ executor_config = {
     tags=["example"],
 )
 def my_custom_dag():
-    from ml_test import run
-    t1 = PythonOperator(
-        task_id='run_ml_test_from_docker_using_py_o',
-        python_callable=run,
-        executor_config=executor_config,
-    )
+    @task(executor_config=executor_config)
+    def run_custom_task():
+        from ml_test import run
+        run()
 
-    t1
+    run_custom_task()
+
+    # t1 = PythonOperator(
+    #     task_id='python_op',
+    #     python_callable=run_custom_task
+    # )
 
 my_custom_dag()
