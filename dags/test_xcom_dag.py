@@ -12,7 +12,7 @@ with (DAG('xcom_demo', start_date=datetime(2025,4,22), schedule_interval=None)
     t1 = PythonOperator(
         task_id='print_hello',
         python_callable=print_msg,
-        op_kwargs={'msg': 'hello from PythonOperator'}
+        op_kwargs={'msg': 'hello from PythonOperator - Test'}
     )
 
     @task
