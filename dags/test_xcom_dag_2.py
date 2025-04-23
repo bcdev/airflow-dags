@@ -7,7 +7,7 @@ def print_msg(msg, **context):
     print(msg)
     return msg.upper()
 
-with (DAG('xcom_demo', start_date=datetime(2025,4,22), schedule_interval=None)
+with (DAG('xcom_demo2', start_date=datetime(2025,4,22), schedule_interval=None)
       as dag):
     t1 = PythonOperator(
         task_id='print_hello',
