@@ -30,9 +30,9 @@ def my_custom_dag():
 
     run_custom_task()
 
-    t1 = PythonOperator(
-        task_id='consume_xcom',
-        python_callable=run_custom_task
-    )
+    # t1 = PythonOperator(
+    #     task_id='python_op',
+    #     python_callable=run_custom_task
+    # )
 
 my_custom_dag()
