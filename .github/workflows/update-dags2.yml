@@ -34,7 +34,10 @@ jobs:
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add .
             git commit -m "chore: update submodules to latest main"
-            git push https://x-access-token:${{ secrets.SUBMODULE_PAT }}@github.com/bcdev/airflow-dags.git HEAD:main
+
+            # Explicitly set the push URL with the correct token
+            git remote set-url origin https://x-access-token:${{ secrets.SUBMODULE_PAT }}@github.com/bcdev/airflow-dags.git
+            git push origin HEAD:main
           else
             echo "No changes to commit."
           fi
