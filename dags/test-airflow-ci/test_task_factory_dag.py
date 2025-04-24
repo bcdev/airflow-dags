@@ -1,6 +1,6 @@
 from airflow import DAG
 from datetime import datetime
-from task_factory import task_factory
+from dags.task_factory import task_factory
 
 with DAG(
     dag_id="task_factory_dag_example",
