@@ -1,38 +1,39 @@
-from airflow.decorators import dag, task
+from airflow import DAG
+from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
 from datetime import datetime
-from kubernetes.client import models as k8s
-from airflow.operators.python import PythonOperator
+import json
 
-executor_config = {
-    "pod_override": k8s.V1Pod(
-        spec=k8s.V1PodSpec(
-            containers=[
-                k8s.V1Container(
-                    name="base",
-                    image="syogesh9/airflow-dags-ml-test:v8",
-                )
-            ]
-        )
+def create_kpo_task(task_id, image, function_path, function_kwargs):
+    return KubernetesPodOperator(
+        task_id=task_id,
+        name=task_id,
+        namespace="default",
+        image=image,
+        cmds=["python", "runner.py"],
+        env_vars={
+            "FUNC_PATH": function_path,
+            "FUNC_KWARGS": json.dumps(function_kwargs)
+        },
+        get_logs=True,
+        is_delete_operator_pod=True,
+        in_cluster=True,
+        do_xcom_push=True
     )
-}
 
-@dag(
+with DAG(
+    dag_id="kpo_ml_task_example",
+    start_date=datetime(2024, 1, 1),
     schedule_interval=None,
-    start_date=datetime(2025, 4, 22),
-    catchup=False,
-    tags=["example"],
-)
-def my_custom_dag():
-    @task(executor_config=executor_config)
-    def run_custom_task():
-        from ml_test import run
-        run()
+    catchup=False
+) as dag:
 
-    run_custom_task()
-
-    # t1 = PythonOperator(
-    #     task_id='python_op',
-    #     python_callable=run_custom_task
-    # )
-
-my_custom_dag()
+    task = create_kpo_task(
+        task_id="process_data",
+        image="syogesh9/kpo-test:v3",
+        function_path="actual_package.preprocessing.process",
+        function_kwargs={
+            "data": "iris",
+            "transform": "scale",
+            "path": "/tmp/iris_output.csv"
+        }
+    )
