@@ -17,6 +17,7 @@ jobs:
           fetch-depth: 1
           submodules: recursive
           token: ${{ secrets.SUBMODULE_PAT }}
+          persist-credentials: false
 
       - name: Update submodules to latest main
         run: |
