@@ -28,6 +28,26 @@ jobs:
             git pull origin main
             cd -
           done
+          
+
+      - name: Gather DAGs
+        run: |
+          rm -rf old_dags && mv dags old_dags || true
+          rm -rf tmp dags
+          mkdir -p tmp
+          git submodule foreach --recursive '
+            echo "Processing $name ($path)..."
+            if [ -d "$toplevel/$path/dags" ]; then
+              mkdir -p "$toplevel/tmp/$name"
+              cp -r "$toplevel/$path/dags/." "$toplevel/tmp/$name/"
+              echo "Copied DAGs from $name:"
+              ls -la "$toplevel/$path/dags"
+            else
+              echo "No dags/ directory found in $name"
+            fi
+          '
+          mv tmp dags
+
 
       - name: Push changes using fresh clone
         run: |
@@ -45,6 +65,9 @@ jobs:
           cp -r $WORKSPACE_PATH/.git/modules/ .git/
           cp -r $WORKSPACE_PATH/.gitmodules .
           
+          rm -rf dags/
+          cp -r $WORKSPACE_PATH/dags ./dags
+          
           for d in $(git config --file .gitmodules --get-regexp path | awk '{ print $2 }'); do
             echo "Copying updated submodule $d"
             rm -rf "$d"
@@ -54,7 +77,7 @@ jobs:
           
           git add .
           if ! git diff --cached --quiet; then
-            git commit -m "update submodules via dispatch"
+            git commit -m "update submodules and dags via dispatch"
             git push origin HEAD:main
             echo "Changes pushed successfully"
           else
