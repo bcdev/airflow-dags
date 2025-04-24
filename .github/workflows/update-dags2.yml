@@ -22,6 +22,7 @@ jobs:
       - name: Update submodules and checkout branches
         run: |
           cd /tmp/repo
+          
           git submodule update --init --recursive
           git submodule update --remote --recursive
 
@@ -33,6 +34,8 @@ jobs:
             git pull origin main
             cd -
           done
+        with:
+          token: ${{ secrets.SUBMODULE_PAT }}
 
       - name: Show what changed
         run: |
