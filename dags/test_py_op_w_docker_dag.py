@@ -7,7 +7,6 @@ def create_kpo_task(task_id, image, function_path, function_kwargs):
     return KubernetesPodOperator(
         task_id=task_id,
         name=task_id,
-        namespace="default",
         image=image,
         cmds=["python", "runner.py"],
         env_vars={
