@@ -36,7 +36,7 @@ jobs:
           mkdir -p /tmp/repo-push
           cd /tmp/repo-push
           
-          git clone https://x-access-token:${{ secrets.SUBMODULE_PAT }}@github.com/bcdev/airflow-dags.git .
+          git clone https://x-access-token:${{ secrets.CDR_PUSH_PAT }}@github.com/bcdev/airflow-dags.git .
           
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
