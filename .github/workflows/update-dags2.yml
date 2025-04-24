@@ -1,0 +1,37 @@
+name: Update Submodules on Dispatch
+
+on:
+  repository_dispatch:
+    types: [ dag-updated ]
+  workflow_dispatch:
+
+jobs:
+  update-submodules:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout umbrella repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_PAT }}
+          fetch-depth: 1
+
+      - name: Set Git config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update all submodules
+        run: |
+          git submodule update --remote --recursive
+
+      - name: Commit submodule changes (if any)
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add .
+            git commit -m "update submodules via dispatch"
+            git push
+          else
+            echo "No changes to commit."
+          fi

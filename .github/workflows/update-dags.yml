@@ -1,8 +1,8 @@
 name: Aggregate & Update DAGs
 
 on:
-  repository_dispatch:
-    types: [ dag-updated ]
+#  repository_dispatch:
+#    types: [ dag-updated ]
   workflow_dispatch:
 
 concurrency:
