@@ -8,39 +8,47 @@ on:
 jobs:
   update-submodules:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: /tmp/repo
 
     steps:
-      - name: Checkout umbrella repo
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          token: ${{ secrets.SUBMODULE_PAT }}
-          fetch-depth: 1
-
-      - name: Update all submodules
+      - name: Clone umbrella repo using token
         run: |
+          mkdir -p /tmp/repo
+          cd /tmp/repo
+          git clone https://x-access-token:${{ secrets.CDR_PUSH_PAT }}@github.com/bcdev/airflow-dags.git .
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update submodules and checkout branches
+        run: |
+          git submodule update --init --recursive
           git submodule update --remote --recursive
-          
 
-      - name: Checkout submodule branches
-        run: |
+          # Check out the appropriate branch for each submodule
           for d in $(git config --file .gitmodules --get-regexp path | awk '{ print $2 }'); do
-            echo "Checking out main branch in $d"
+            echo "Checking out 'main' branch in $d"
             cd "$d"
             git checkout main
             git pull origin main
             cd -
           done
 
-      - name: Commit submodule changes (if any)
+      - name: Show what changed
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+          echo "== Git Status =="
+          git status
+
+          echo "== Git Diff =="
+          git diff
+
+      - name: Commit and push if there are changes
+        run: |
           if [[ -n "$(git status --porcelain)" ]]; then
             git add .
-            git commit -m "update submodules via dispatch"
-            git push
+            git commit -m "chore: update submodules via CI"
+            git push https://x-access-token:${{ secrets.CDR_PUSH_PAT }}@github.com/bcdev/airflow-dags.git HEAD:main
           else
             echo "No changes to commit."
           fi
