@@ -11,48 +11,29 @@ jobs:
 
 
     steps:
-      - name: Clone umbrella repo using token
-        run: |
-          mkdir -p /tmp/repo
-          cd /tmp/repo
-          git clone https://x-access-token:${{ secrets.CDR_PUSH_PAT }}@github.com/bcdev/airflow-dags.git .
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Update submodules and checkout branches
-        run: |
-          cd /tmp/repo
-          
-          git submodule update --init --recursive
-          git submodule update --remote --recursive
-
-          # Check out the appropriate branch for each submodule
-          for d in $(git config --file .gitmodules --get-regexp path | awk '{ print $2 }'); do
-            echo "Checking out 'main' branch in $d"
-            cd "$d"
-            git checkout main
-            git pull origin main
-            cd -
-          done
+      - name: Checkout umbrella + submodules (sparse)
+        uses: actions/checkout@v4
         with:
+          fetch-depth: 1
+          submodules: recursive
           token: ${{ secrets.SUBMODULE_PAT }}
 
-      - name: Show what changed
+      - name: Update submodules to latest main
         run: |
-          cd /tmp/repo
-          echo "== Git Status =="
-          git status
+          git submodule foreach '
+            echo "Updating $name ..."
+            git checkout main || echo "$name has no main branch"
+            git pull origin main || echo "$name pull failed"
+          '
 
-          echo "== Git Diff =="
-          git diff
-
-      - name: Commit and push if there are changes
+      - name: Commit and push if submodules changed
         run: |
-          cd /tmp/repo
           if [[ -n "$(git status --porcelain)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
             git add .
-            git commit -m "chore: update submodules via CI"
-            git push https://x-access-token:${{ secrets.CDR_PUSH_PAT }}@github.com/bcdev/airflow-dags.git HEAD:main
+            git commit -m "chore: update submodules to latest main"
+            git push https://x-access-token:${{ secrets.SUBMODULE_PAT }}@github.com/bcdev/airflow-dags.git HEAD:main
           else
             echo "No changes to commit."
           fi
