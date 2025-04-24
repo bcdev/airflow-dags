@@ -8,7 +8,6 @@ def create_kpo_task(task_id, image, function_path, function_kwargs):
         task_id=task_id,
         name=task_id,
         image=image,
-        cmds=["python", "runner.py"],
         env_vars={
             "FUNC_PATH": function_path,
             "FUNC_KWARGS": json.dumps(function_kwargs)
@@ -28,7 +27,7 @@ with DAG(
 
     task = create_kpo_task(
         task_id="process_data",
-        image="syogesh9/kpo-test:v3",
+        image="syogesh9/kpo-test:v6",
         function_path="actual_package.preprocessing.process",
         function_kwargs={
             "data": "iris",
