@@ -1,0 +1,3 @@
+[submodule "test-airflow-ci"]
+	path = test-airflow-ci
+	url = https://github.com/bcdev/test-airflow-ci.git
