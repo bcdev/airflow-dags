@@ -32,7 +32,7 @@ with DAG(
         function_path="actual_package.preprocessing.process",
         function_kwargs={
             "data": "iris",
-            "transform": "scale",
+            "transform": "scale_and_rotate",
             "path": "/tmp/iris_output.csv"
         }
     )
