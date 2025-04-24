@@ -28,7 +28,7 @@ with DAG(
 
     task = create_kpo_task(
         task_id="process_data",
-        image="syogesh9/test-runner:v6",
+        image="syogesh9/test-runner:v1",
         function_path="actual_package.preprocessing.process",
         function_kwargs={
             "data": "iris",
