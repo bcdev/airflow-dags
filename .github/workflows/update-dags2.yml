@@ -36,7 +36,11 @@ jobs:
             git add .
             git commit -m "chore: update submodules to latest main"
 
-            git push "https://x-access-token:${{ secrets.SUBMODULE_PAT }}@github.com/bcdev/airflow-dags.git" HEAD:main
+            mkdir -p /tmp/repo-push
+            git clone --bare "$(pwd)" /tmp/repo-push
+            cd /tmp/repo-push
+            
+            git push --force "https://x-access-token:${{ secrets.SUBMODULE_PAT }}@github.com/bcdev/airflow-dags.git" HEAD:main
           else
             echo "No changes to commit."
           fi
