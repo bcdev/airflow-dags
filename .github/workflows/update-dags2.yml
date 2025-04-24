@@ -8,9 +8,7 @@ on:
 jobs:
   update-submodules:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: /tmp/repo
+
 
     steps:
       - name: Clone umbrella repo using token
@@ -23,6 +21,7 @@ jobs:
 
       - name: Update submodules and checkout branches
         run: |
+          cd /tmp/repo
           git submodule update --init --recursive
           git submodule update --remote --recursive
 
@@ -37,6 +36,7 @@ jobs:
 
       - name: Show what changed
         run: |
+          cd /tmp/repo
           echo "== Git Status =="
           git status
 
@@ -45,6 +45,7 @@ jobs:
 
       - name: Commit and push if there are changes
         run: |
+          cd /tmp/repo
           if [[ -n "$(git status --porcelain)" ]]; then
             git add .
             git commit -m "chore: update submodules via CI"
