@@ -17,17 +17,26 @@ jobs:
           token: ${{ secrets.SUBMODULE_PAT }}
           fetch-depth: 1
 
-      - name: Set Git config
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
       - name: Update all submodules
         run: |
           git submodule update --remote --recursive
+          
+
+      - name: Checkout submodule branches
+        run: |
+          for d in $(git config --file .gitmodules --get-regexp path | awk '{ print $2 }'); do
+            echo "Checking out main branch in $d"
+            cd "$d"
+            git checkout main
+            git pull origin main
+            cd -
+          done
 
       - name: Commit submodule changes (if any)
         run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
           if [[ -n "$(git status --porcelain)" ]]; then
             git add .
             git commit -m "update submodules via dispatch"
