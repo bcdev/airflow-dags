@@ -8,7 +8,7 @@ def create_kpo_task(task_id, image, function_path, function_kwargs):
         task_id=task_id,
         name=task_id,
         image=image,
-        # cmds=["python", "runner.py"],
+        cmds=["python", "-m", "actual_package.runner"],
         env_vars={
             "FUNC_PATH": function_path,
             "FUNC_KWARGS": json.dumps(function_kwargs)
