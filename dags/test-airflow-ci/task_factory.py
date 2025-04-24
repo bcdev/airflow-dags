@@ -35,7 +35,8 @@ def task_factory(
             env_vars={
                 "FUNC_PATH": func_path,
                 "FUNC_KWARGS": json.dumps(func_kwargs),
-                "ENV": "prod"
+                "ENV": "prod",
+                "PYTHONPATH": "/opt/airflow/dags:$PYTHONPATH",
             },
             secrets=secrets or [],
             get_logs=True,
