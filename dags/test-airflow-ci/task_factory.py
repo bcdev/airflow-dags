@@ -29,14 +29,12 @@ def task_factory(
         return KubernetesPodOperator(
             task_id=task_id,
             name=task_id,
-            namespace="default",
             image=image,
             cmds=["python", "-m", "actual_package.runner"],
             env_vars={
                 "FUNC_PATH": func_path,
                 "FUNC_KWARGS": json.dumps(func_kwargs),
                 "ENV": "prod",
-                "PYTHONPATH": "/opt/airflow/dags:$PYTHONPATH",
             },
             secrets=secrets or [],
             get_logs=True,
