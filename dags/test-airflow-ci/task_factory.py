@@ -12,6 +12,9 @@ def task_factory(
     xcom_pull_tasks: dict = None,
     secrets: list = None,
 ):
+    if func_kwargs is None:
+        func_kwargs = {}
+
     if xcom_pull_tasks:
         for arg_key, pull_config in xcom_pull_tasks.items():
             source_task, key = pull_config["task"], pull_config.get("key", "return_value")
