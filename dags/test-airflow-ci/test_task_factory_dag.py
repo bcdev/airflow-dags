@@ -6,7 +6,6 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from task_factory import task_factory
-
 with DAG(
     dag_id="task_factory_dag_example",
     start_date=datetime(2024, 1, 1),
@@ -14,14 +13,24 @@ with DAG(
     catchup=False
 ) as dag:
 
-    task = task_factory(
-        task_id="process_data",
-        image="syogesh9/test-runner:v1",
-        func_path="actual_package.preprocessing.process",
+    preprocess = task_factory(
+        task_id="preprocess_data",
+        image="syogesh9/cc-cm-package:v1",
+        func_path="tac.preprocess",
         func_kwargs={
-            "data": "iris",
-            "transform": "scale_and_rotate",
             "path": "/tmp/iris_output.csv"
         },
         env="prod"
     )
+
+    train = task_factory(
+        task_id="train",
+        image="syogesh9/cc-cm-package:v1",
+        func_path="tac.train",
+        xcom_pull_tasks={
+            "preprocessed_path": {"task": "preprocess_data", "key": "preprocessed_data_path"}
+        },
+        env="prod"
+    )
+
+    preprocess >> train
