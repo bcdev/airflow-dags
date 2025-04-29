@@ -5,7 +5,7 @@ from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperato
 def task_factory(
     task_id: str,
     func_path: str,
-    func_kwargs: dict,
+    func_kwargs: dict = None,
     image: str = None,
     env: str = "dev",
     xcom_push: bool = True,
