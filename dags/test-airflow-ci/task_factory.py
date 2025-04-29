@@ -33,7 +33,7 @@ def task_factory(
             task_id=task_id,
             name=task_id,
             image=image,
-            cmds=["python", "-m", "actual_package.runner"],
+            cmds=["python", "-m", "tac.runner"],
             env_vars={
                 "FUNC_PATH": func_path,
                 "FUNC_KWARGS": json.dumps(func_kwargs),
