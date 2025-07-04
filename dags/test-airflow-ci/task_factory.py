@@ -43,7 +43,8 @@ def task_factory(
             get_logs=True,
             is_delete_operator_pod=True,
             in_cluster=True,
-            do_xcom_push=xcom_push
+            do_xcom_push=xcom_push,
+            service_account_name="airflow-development-worker"
         )
 
     else:

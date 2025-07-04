@@ -15,7 +15,7 @@ with DAG(
 
     preprocess = task_factory(
         task_id="preprocess_data",
-        image="syogesh9/cc-cm-package:v1",
+        image="346516713328.dkr.ecr.eu-central-1.amazonaws.com/tac:0.0.1",
         func_path="tac.preprocess",
         func_kwargs={
             "path": "/tmp/iris_output.csv"
@@ -25,7 +25,7 @@ with DAG(
 
     train = task_factory(
         task_id="train",
-        image="syogesh9/cc-cm-package:v1",
+        image="346516713328.dkr.ecr.eu-central-1.amazonaws.com/tac:0.0.1",
         func_path="tac.train",
         xcom_pull_tasks={
             "preprocessed_path": {"task": "preprocess_data", "key": "preprocessed_data_path"}
