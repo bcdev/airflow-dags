@@ -26,38 +26,68 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-ecr-role
           aws-region: eu-central-1
           audience: sts.amazonaws.com
-
-      - name: Debug S3 sync differences
-        run: |
-          echo "=== Current local files ==="
-          find dags -type f -exec ls -la {} \;
-          
-          echo "=== S3 files ==="
-          aws s3 ls s3://airflow-dags-bc/ --recursive
-          
-          echo "=== Detailed sync output ==="
-          aws s3 sync s3://airflow-dags-bc/ dags/ --dryrun --size-only --exact-timestamps
-          
-          echo "=== What sync thinks is different ==="
-          aws s3 sync s3://airflow-dags-bc/ dags/ --dryrun --size-only --exact-timestamps --debug 2>&1 | head -50
-
-          exit 0
         
 
-      - name: Check for DAG changes
+      # - name: Check for DAG changes
+      #   id: check_dags
+      #   run: |
+      #     echo $(ls)
+      #     cd dags/
+      #     CHANGES=$(aws s3 sync s3://airflow-dags-bc/ . --dryrun --exact-timestamps)
+      #     CHANGES_COUNT=$(aws s3 sync s3://airflow-dags-bc/ . --dryrun --exact-timestamps | wc -l)
+      #     echo "Found $CHANGES changes"
+      #     echo "Found $CHANGES_COUNT total changes"
+      #     if [ "$CHANGES" -eq "0" ]; then
+      #       echo "no_changes=true" >> "$GITHUB_OUTPUT"
+      #     else
+      #       echo "no_changes=false" >> "$GITHUB_OUTPUT"
+      #     fi
+
+      - name: Check for DAG changes using ETags
         id: check_dags
         run: |
-          echo $(ls)
-          cd dags/
-          CHANGES=$(aws s3 sync s3://airflow-dags-bc/ . --dryrun --exact-timestamps)
-          CHANGES_COUNT=$(aws s3 sync s3://airflow-dags-bc/ . --dryrun --exact-timestamps | wc -l)
-          echo "Found $CHANGES changes"
-          echo "Found $CHANGES_COUNT total changes"
-          if [ "$CHANGES" -eq "0" ]; then
+          # Get S3 file ETags (content hashes)
+          aws s3api list-objects-v2 --bucket airflow-dags-bc \
+            --query 'Contents[].{Key:Key,ETag:ETag}' \
+            --output json > /tmp/s3_etags.json
+          
+          # Check each file's content hash
+          files_to_download=""
+          files_changed=0
+          
+          while IFS= read -r line; do
+            key=$(echo "$line" | jq -r '.Key')
+            s3_etag=$(echo "$line" | jq -r '.ETag' | tr -d '"')
+            
+            local_file="dags/$key"
+            
+            # Check if local file exists
+            if [ ! -f "$local_file" ]; then
+              echo "File $key doesn't exist locally"
+              files_to_download="$files_to_download $key"
+              files_changed=$((files_changed + 1))
+              continue
+            fi
+            
+            # Calculate local file MD5 hash
+            local_md5=$(md5sum "$local_file" | cut -d' ' -f1)
+            
+            # Compare hashes
+            if [ "$s3_etag" != "$local_md5" ]; then
+              echo "File $key has different content (S3: $s3_etag, Local: $local_md5)"
+              files_to_download="$files_to_download $key"
+              files_changed=$((files_changed + 1))
+            fi
+          done < <(jq -c '.[]' /tmp/s3_etags.json)
+          
+          echo "Files that need downloading: $files_changed"
+          echo "files_to_download=$files_to_download" >> "$GITHUB_OUTPUT"
+          
+          if [ "$files_changed" -eq "0" ]; then
             echo "no_changes=true" >> "$GITHUB_OUTPUT"
           else
             echo "no_changes=false" >> "$GITHUB_OUTPUT"
-          fi
+          fi 
       
       - name: Exit early if no DAGs changed
         if: steps.check_dags.outputs.no_changes == 'true'
