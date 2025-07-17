@@ -27,6 +27,8 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-ecr-role
           aws-region: eu-central-1
+          audience: sts.amazonaws.com
+        
 
       - name: Clear old dags and prepare tmp folder
         run: |
