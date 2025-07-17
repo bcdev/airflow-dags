@@ -32,8 +32,9 @@ jobs:
         id: check_dags
         run: |
           echo $(ls)
-          CHANGES=$(aws s3 sync s3://airflow-dags-bc/ dags/ --dryrun --exact-timestamps)
-          CHANGES_COUNT=$(aws s3 sync s3://airflow-dags-bc/ dags/ --dryrun --exact-timestamps | wc -l)
+          cd dags/
+          CHANGES=$(aws s3 sync s3://airflow-dags-bc/ . --dryrun --exact-timestamps)
+          CHANGES_COUNT=$(aws s3 sync s3://airflow-dags-bc/ . --dryrun --exact-timestamps | wc -l)
           echo "Found $CHANGES changes"
           echo "Found $CHANGES_COUNT total changes"
           if [ "$CHANGES" -eq "0" ]; then
