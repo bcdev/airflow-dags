@@ -1,0 +1,51 @@
+name: Sync DAGs from S3 and Push
+
+on:
+  repository_dispatch:
+    types: [dag-updated]
+  workflow_dispatch:
+
+jobs:
+  sync-dags:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.CDR_PUSH_PAT }}
+          fetch-depth: 1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ACCOUNT_ID }}
+          aws-region: eu-central-1
+
+      - name: Clear old dags and prepare tmp folder
+        run: |
+          rm -rf old_dags && mv dags old_dags || true
+          rm -rf tmp dags
+          mkdir -p tmp dags
+
+      - name: Download DAGs from S3
+        run: |
+          echo "Syncing DAGs from s3://${BUCKET_NAME}/"
+          aws s3 sync s3://${BUCKET_NAME}/ tmp/
+          cp -r tmp/* dags/
+
+      - name: Commit and push DAG changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add dags/
+          if ! git diff --cached --quiet; then
+            git commit -m "sync DAGs from S3"
+            git push origin HEAD:main
+            echo "Changes pushed successfully."
+          else
+            echo "No DAG changes to commit."
+          fi
