@@ -95,7 +95,17 @@ jobs:
       
       - name: Download DAGs from S3
         if: steps.check_dags.outputs.no_changes != 'true'
-        run: aws s3 sync s3://airflow-dags-bc/ dags/ --exact-timestamps
+        # run: aws s3 sync s3://airflow-dags-bc/ dags/ --exact-timestamps
+        run: |
+          files_to_download="${{ steps.check_dags.outputs.files_to_download }}"
+          
+          for file in $files_to_download; do
+            echo "Downloading $file"
+            mkdir -p "$(dirname "dags/$file")"
+            aws s3 cp "s3://airflow-dags-bc/$file" "dags/$file"
+          done
+    
+          echo "Downloaded $(echo $files_to_download | wc -w) files"
 
       - name: Commit and push DAG changes
         if: steps.check_dags.outputs.no_changes != 'true'
