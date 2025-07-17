@@ -94,9 +94,11 @@ jobs:
         run: echo "No DAGs changed. Skipping workflow." && exit 0
       
       - name: Download DAGs from S3
+        if: steps.check_dags.outputs.no_changes != 'true'
         run: aws s3 sync s3://airflow-dags-bc/ dags/ --exact-timestamps
 
       - name: Commit and push DAG changes
+        if: steps.check_dags.outputs.no_changes != 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
