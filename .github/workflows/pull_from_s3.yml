@@ -28,17 +28,24 @@ jobs:
           audience: sts.amazonaws.com
         
 
-      - name: Clear old dags and prepare tmp folder
+      - name: Check for DAG changes
+        id: check_dags
         run: |
-          rm -rf old_dags && mv dags old_dags || true
-          rm -rf tmp dags
-          mkdir -p tmp dags
-
+          mkdir -p dags
+          CHANGES=$(aws s3 sync s3://airflow-dags-bc/ dags/ --dryrun | wc -l)
+          echo "Found $CHANGES changes"
+          if [ "$CHANGES" -eq "0" ]; then
+            echo "no_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "no_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+      
+      - name: Exit early if no DAGs changed
+        if: steps.check_dags.outputs.no_changes == 'true'
+        run: echo "No DAGs changed. Skipping workflow." && exit 0
+      
       - name: Download DAGs from S3
-        run: |
-          echo "Syncing DAGs from s3://airflow-dags-bc/"
-          aws s3 sync s3://airflow-dags-bc/ tmp/
-          cp -r tmp/* dags/
+        run: aws s3 sync s3://airflow-dags-bc/ dags/
 
       - name: Commit and push DAG changes
         run: |
