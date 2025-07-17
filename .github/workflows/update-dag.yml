@@ -1,8 +1,8 @@
 name: Update Submodules on Dispatch
 
 on:
-  repository_dispatch:
-    types: [dag-updated]
+  # repository_dispatch:
+  #   types: [dag-updated]
   workflow_dispatch:
 
 jobs:
