@@ -5,6 +5,10 @@ on:
     types: [dag-updated]
   workflow_dispatch:
 
+permissions:
+  id-token: write 
+  contents: read
+
 jobs:
   sync-dags:
     runs-on: ubuntu-latest
