@@ -32,8 +32,8 @@ jobs:
 
       - name: Download DAGs from S3
         run: |
-          echo "Syncing DAGs from s3://${BUCKET_NAME}/"
-          aws s3 sync s3://${BUCKET_NAME}/ tmp/
+          echo "Syncing DAGs from s3://airflow-dags-bc/"
+          aws s3 sync s3://airflow-dags-bc/ tmp/
           cp -r tmp/* dags/
 
       - name: Commit and push DAG changes
