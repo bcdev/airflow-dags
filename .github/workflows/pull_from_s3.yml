@@ -26,6 +26,22 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-ecr-role
           aws-region: eu-central-1
           audience: sts.amazonaws.com
+
+      - name: Debug S3 sync differences
+        run: |
+          echo "=== Current local files ==="
+          find dags -type f -exec ls -la {} \;
+          
+          echo "=== S3 files ==="
+          aws s3 ls s3://airflow-dags-bc/ --recursive
+          
+          echo "=== Detailed sync output ==="
+          aws s3 sync s3://airflow-dags-bc/ dags/ --dryrun --size-only --exact-timestamps
+          
+          echo "=== What sync thinks is different ==="
+          aws s3 sync s3://airflow-dags-bc/ dags/ --dryrun --size-only --exact-timestamps --debug 2>&1 | head -50
+
+          exit 0
         
 
       - name: Check for DAG changes
