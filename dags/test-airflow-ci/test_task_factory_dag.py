@@ -8,6 +8,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from task_factory import task_factory
 with DAG(
     dag_id="task_factory_dag_example",
+    description="task_factory will be replaced by gaiaflow.create_task",
     start_date=datetime(2024, 1, 1),
     schedule_interval=None,
     catchup=False
