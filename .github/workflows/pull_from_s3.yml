@@ -32,7 +32,7 @@ jobs:
         id: check_dags
         run: |
           echo $(ls)
-          CHANGES=$(aws s3 sync s3://airflow-dags-bc/ dags/ --dryrun | wc -l)
+          CHANGES=$(aws s3 sync s3://airflow-dags-bc/ dags/ --dryrun --exact-timestamps | wc -l)
           echo "Found $CHANGES changes"
           if [ "$CHANGES" -eq "0" ]; then
             echo "no_changes=true" >> "$GITHUB_OUTPUT"
@@ -45,7 +45,7 @@ jobs:
         run: echo "No DAGs changed. Skipping workflow." && exit 0
       
       - name: Download DAGs from S3
-        run: aws s3 sync s3://airflow-dags-bc/ dags/
+        run: aws s3 sync s3://airflow-dags-bc/ dags/ --exact-timestamps
 
       - name: Commit and push DAG changes
         run: |
