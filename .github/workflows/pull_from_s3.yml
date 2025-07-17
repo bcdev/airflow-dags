@@ -31,6 +31,7 @@ jobs:
       - name: Check for DAG changes
         id: check_dags
         run: |
+          echo $(ls)
           CHANGES=$(aws s3 sync s3://airflow-dags-bc/ dags/ --dryrun --size-only --exact-timestamps | wc -l)
           echo "Found $CHANGES changes"
           if [ "$CHANGES" -eq "0" ]; then
