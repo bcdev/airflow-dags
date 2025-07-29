@@ -22,7 +22,7 @@ with DAG(
                     containers=[
                         k8s.V1Container(
                             name="base",
-                            image="syogesh9/hello-world:1",
+                            image="syogesh9/hello-world:v1",
                         )
                     ]
                 )
