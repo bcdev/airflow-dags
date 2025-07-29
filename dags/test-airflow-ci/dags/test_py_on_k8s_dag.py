@@ -10,7 +10,7 @@ def task1():
 
 with DAG(
     'test_python_op_on_k8sexec',
-    schedule=None,
+    schedule_interval=None,
     start_date=datetime(2025,4,22),
 ) as dag:
     task1 = PythonOperator(
