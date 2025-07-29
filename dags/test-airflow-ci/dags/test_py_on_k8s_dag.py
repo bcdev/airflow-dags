@@ -2,7 +2,8 @@ from _datetime import datetime
 
 from airflow import DAG
 from kubernetes.client import models as k8s
-from airflow.providers.standard.operators.python import PythonOperator
+from airflow.operators.python import PythonOperator
+
 
 def task1():
     print("Hello world from dag file!!!")
