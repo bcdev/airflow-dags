@@ -17,17 +17,9 @@ with DAG(
         task_id="task1",
         python_callable=task1,
         executor_config={
-            "pod_override": k8s.V1Pod(
-                spec=k8s.V1PodSpec(
-                    containers=[
-                        k8s.V1Container(
-                            name="base",
-                            image="346516713328.dkr.ecr.eu-central-1.amazonaws.com/tac:0.0.1",
-                        )
-                    ],
-                    service_account_name="airflow-sa"
-                )
-            )
+            "KubernetesExecutor": {
+                "image": "346516713328.dkr.ecr.eu-central-1.amazonaws.com/tac:0.0.1"
+            }
         },
     )
 
