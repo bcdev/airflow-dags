@@ -1,7 +1,7 @@
 from _datetime import datetime
 
 from airflow import DAG
-from kubernetes.client import models as k8s
+from kubernetes.client import models as k8s, V1EnvVar
 from airflow.operators.python import PythonOperator
 
 
@@ -22,7 +22,7 @@ with DAG(
                     containers=[
                         k8s.V1Container(
                             name="base",
-                            image="syogesh9/hello-world:0"
+                            image="syogesh9/hello-world:1",
                         )
                     ]
                 )
