@@ -24,7 +24,8 @@ with DAG(
                             name="base",
                             image="346516713328.dkr.ecr.eu-central-1.amazonaws.com/tac:0.0.1",
                         )
-                    ]
+                    ],
+                    service_account_name="airflow-sa"
                 )
             )
         },
