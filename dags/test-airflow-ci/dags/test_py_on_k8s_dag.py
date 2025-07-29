@@ -16,18 +16,18 @@ with DAG(
     task1 = PythonOperator(
         task_id="task1",
         python_callable=task1,
-        executor_config={
-            "pod_override": k8s.V1Pod(
-                spec=k8s.V1PodSpec(
-                    containers=[
-                        k8s.V1Container(
-                            name="base",
-                            image="syogesh9/airflow-dags-test:v6"
-                        )
-                    ]
-                )
-            )
-        },
+        # executor_config={
+        #     "pod_override": k8s.V1Pod(
+        #         spec=k8s.V1PodSpec(
+        #             containers=[
+        #                 k8s.V1Container(
+        #                     name="base",
+        #                     image="syogesh9/airflow-dags-test:v6"
+        #                 )
+        #             ]
+        #         )
+        #     )
+        # },
     )
 
     task1
