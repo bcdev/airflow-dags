@@ -28,7 +28,7 @@ jobs:
           audience: sts.amazonaws.com
       
       - name: Download DAGs from S3
-        run: aws s3 sync s3://airflow-dags-bc/ dags/ --exact-timestamps
+        run: aws s3 sync s3://airflow-dags-bc/ dags/ --exact-timestamps --delete
 
       - name: Commit and push DAG changes
         run: |
