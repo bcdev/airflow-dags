@@ -22,7 +22,8 @@ with DAG(
     "start_date": Param(type='string', title='Start date.', format='date'),
     "end_date": Param(type='string', title='End date.', format='date'),
     "bbox": Param(default=[-180, -90, 180, 90], type='array', title='Bounding box as [west, south, east, north] in EPSG:4326.', format='bbox', items={'type': 'number'}),
-    "output_prefix": Param(default='smos-sm/global', type='string', title='S3 output prefix.', description="Key prefix under which staging and ARD Zarr stores are written. Defaults to 'smos-sm/global' for production runs.")
+    "output_prefix": Param(default='smos-sm/global', type='string', title='S3 output prefix.', description="Key prefix under which staging and ARD Zarr stores are written. Defaults to 'smos-sm/global' for production runs."),
+    "stac_s3_bucket": Param(default=None, type=['null', 'string'], title='STAC catalog S3 bucket.', description="S3 bucket for the STAC catalog and deep-code user storage. Defaults to the ARD cube bucket when not set.")
     },
 ) as dag:
 
@@ -39,9 +40,11 @@ with DAG(
             "inputs": {"start_date": "{{ params.start_date }}",
 "end_date": "{{ params.end_date }}",
 "bbox": "{{ params.bbox }}",
-"output_prefix": "{{ params.output_prefix }}"},
-            "output_keys": ['start_date', 'end_date', 'bbox', 'output_prefix'],
+"output_prefix": "{{ params.output_prefix }}",
+"stac_s3_bucket": "{{ params.stac_s3_bucket }}"},
+            "output_keys": ['start_date', 'end_date', 'bbox', 'output_prefix', 'stac_s3_bucket'],
         })],
+        namespace="earthcode",
         env_from=[k8s.V1EnvFromSource(secret_ref=k8s.V1SecretEnvSource(name='earthcode-secrets'))],
         do_xcom_push=True,
     )
@@ -60,6 +63,7 @@ with DAG(
 "output_prefix": "{{ ti.xcom_pull(task_ids='main_step')['output_prefix'] }}"},
             "output_keys": ['return_value'],
         })],
+        namespace="earthcode",
         env_from=[k8s.V1EnvFromSource(secret_ref=k8s.V1SecretEnvSource(name='earthcode-secrets'))],
         do_xcom_push=True,
     )
@@ -75,6 +79,7 @@ with DAG(
             "inputs": {"fetch_result": "{{ ti.xcom_pull(task_ids='fetch_data')['return_value'] }}"},
             "output_keys": ['return_value'],
         })],
+        namespace="earthcode",
         env_from=[k8s.V1EnvFromSource(secret_ref=k8s.V1SecretEnvSource(name='earthcode-secrets'))],
         do_xcom_push=True,
     )
@@ -87,9 +92,11 @@ with DAG(
         arguments=[json.dumps({
             "func_module": "smos_ard.workflow",
             "func_qualname": "publish_data",
-            "inputs": {"agg_result": "{{ ti.xcom_pull(task_ids='aggregate_data')['return_value'] }}"},
+            "inputs": {"agg_result": "{{ ti.xcom_pull(task_ids='aggregate_data')['return_value'] }}",
+"stac_s3_bucket": "{{ ti.xcom_pull(task_ids='main_step')['stac_s3_bucket'] }}"},
             "output_keys": ['return_value'],
         })],
+        namespace="earthcode",
         env_from=[k8s.V1EnvFromSource(secret_ref=k8s.V1SecretEnvSource(name='earthcode-secrets'))],
         do_xcom_push=True,
     )
