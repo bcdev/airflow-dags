@@ -57,10 +57,10 @@ with DAG(
         arguments=[json.dumps({
             "func_module": "smos_ard.workflow",
             "func_qualname": "fetch_data",
-            "inputs": {"start_date": "{{ ti.xcom_pull(task_ids='smos-ard-service')['start_date'] }}",
-"end_date": "{{ ti.xcom_pull(task_ids='smos-ard-service')['end_date'] }}",
-"bbox": "{{ ti.xcom_pull(task_ids='smos-ard-service')['bbox'] }}",
-"output_prefix": "{{ ti.xcom_pull(task_ids='smos-ard-service')['output_prefix'] }}"},
+            "inputs": {"start_date": "{{ ti.xcom_pull(task_ids='process-input-params')['start_date'] }}",
+"end_date": "{{ ti.xcom_pull(task_ids='process-input-params')['end_date'] }}",
+"bbox": "{{ ti.xcom_pull(task_ids='process-input-params')['bbox'] }}",
+"output_prefix": "{{ ti.xcom_pull(task_ids='process-input-params')['output_prefix'] }}"},
             "output_keys": ['return_value'],
         })],
         namespace="earthcode",
@@ -93,7 +93,7 @@ with DAG(
             "func_module": "smos_ard.workflow",
             "func_qualname": "pre_publish_to_osc",
             "inputs": {"agg_result": "{{ ti.xcom_pull(task_ids='aggregate_data')['return_value'] }}",
-"stac_s3_bucket": "{{ ti.xcom_pull(task_ids='smos-ard-service')['stac_s3_bucket'] }}"},
+"stac_s3_bucket": "{{ ti.xcom_pull(task_ids='process-input-params')['stac_s3_bucket'] }}"},
             "output_keys": ['return_value'],
         })],
         namespace="earthcode",
@@ -109,14 +109,14 @@ with DAG(
         task_id="__procodile_final_step__",
         python_callable=_final_step_callable,
         op_kwargs={
-            "upstream_task_id": "publish_data"
+            "upstream_task_id": "prepare_publication"
         },
         do_xcom_push=True
     )
 
-    tasks["smos-ard-service"] >> tasks["fetch_data"]
+    tasks["process-input-params"] >> tasks["fetch_data"]
     tasks["fetch_data"] >> tasks["aggregate_data"]
-    tasks["aggregate_data"] >> tasks["publish_data"]
-    tasks["smos-ard-service"] >> tasks["publish_data"]
-    tasks["publish_data"] >> tasks["__procodile_final_step__"]
+    tasks["aggregate_data"] >> tasks["prepare_publication"]
+    tasks["process-input-params"] >> tasks["prepare_publication"]
+    tasks["prepare_publication"] >> tasks["__procodile_final_step__"]
 
