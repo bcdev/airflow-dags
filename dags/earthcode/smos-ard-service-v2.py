@@ -32,7 +32,7 @@ with DAG(
 
     tasks["process-input-params"] = KubernetesPodOperator(
         task_id="process-input-params",
-        image="quay.io/earthcode/smos-ard-pipeline:0.1.1",
+        image="quay.io/earthcode/smos-ard-pipeline:0.1.2",
         cmds=["python", "/opt/pixi/run_step.py"],
         arguments=[json.dumps({
             "func_module": "smos_ard.workflow",
@@ -52,7 +52,7 @@ with DAG(
 
     tasks["fetch_data"] = KubernetesPodOperator(
         task_id="fetch_data",
-        image="quay.io/earthcode/smos-ard-pipeline:0.1.1",
+        image="quay.io/earthcode/smos-ard-pipeline:0.1.2",
         cmds=["python", "/opt/pixi/run_step.py"],
         arguments=[json.dumps({
             "func_module": "smos_ard.workflow",
@@ -71,7 +71,7 @@ with DAG(
 
     tasks["aggregate_data"] = KubernetesPodOperator(
         task_id="aggregate_data",
-        image="quay.io/earthcode/smos-ard-pipeline:0.1.1",
+        image="quay.io/earthcode/smos-ard-pipeline:0.1.2",
         cmds=["python", "/opt/pixi/run_step.py"],
         arguments=[json.dumps({
             "func_module": "smos_ard.workflow",
@@ -87,7 +87,7 @@ with DAG(
 
     tasks["prepare_publication"] = KubernetesPodOperator(
         task_id="prepare_publication",
-        image="quay.io/earthcode/smos-ard-pipeline:0.1.1",
+        image="quay.io/earthcode/smos-ard-pipeline:0.1.2",
         cmds=["python", "/opt/pixi/run_step.py"],
         arguments=[json.dumps({
             "func_module": "smos_ard.workflow",
