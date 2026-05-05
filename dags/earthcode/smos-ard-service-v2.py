@@ -15,12 +15,12 @@ from kubernetes.client import models as k8s
 with DAG(
     dag_id="smos-ard-service",
     start_date=datetime.fromisoformat("2026-04-29"),
-    schedule=None,
+    schedule="0 23 * * *",
     catchup=False,
     is_paused_upon_creation=False,
     params={
-    "start_date": Param(type='string', title='Start date.', format='date'),
-    "end_date": Param(type='string', title='End date.', format='date'),
+    "start_date": Param(default=None, type=['string', 'null'], title='Start date.', format='date', description="Defaults to yesterday (DAG logical date - 1) when not set."),
+    "end_date": Param(default=None, type=['string', 'null'], title='End date.', format='date', description="Defaults to today (DAG logical date) when not set."),
     "bbox": Param(default=[-180, -90, 180, 90], type='array', title='Bounding box as [west, south, east, north] in EPSG:4326.', format='bbox', items={'type': 'number'}),
     "output_prefix": Param(default='smos-sm/global', type='string', title='S3 output prefix.', description="Key prefix under which staging and ARD Zarr stores are written. Defaults to 'smos-sm/global' for production runs."),
     "stac_s3_bucket": Param(default='s3://deep-esdl-public/stac/', type='string', title='STAC catalog S3 bucket.', description='S3 bucket for the STAC catalog and deep-code user storage. Defaults to the ARD cube bucket when not set.', nullable=True)
@@ -37,8 +37,8 @@ with DAG(
         arguments=[json.dumps({
             "func_module": "smos_ard.workflow",
             "func_qualname": "pipeline_params",
-            "inputs": {"start_date": "{{ params.start_date }}",
-"end_date": "{{ params.end_date }}",
+            "inputs": {"start_date": "{{ params.start_date or macros.ds_add(ds, -1) }}",
+"end_date": "{{ params.end_date or ds }}",
 "bbox": "{{ params.bbox }}",
 "output_prefix": "{{ params.output_prefix }}",
 "stac_s3_bucket": "{{ params.stac_s3_bucket }}"},
