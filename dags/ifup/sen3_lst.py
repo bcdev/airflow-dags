@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from airflow import DAG
 from airflow.models.param import Param
 from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
+from kubernetes.client import models as k8s
 
 
 with DAG(
@@ -30,7 +31,10 @@ with DAG(
             items={"type": "string", "format": "date"},
             minItems=2,
             maxItems=2,
-            description="Optional [start, end] dates in YYYY-MM-DD format.",
+            description=(
+                "Optional [start, end] override in YYYY-MM-DD format. "
+                "If omitted, the DAG uses its Airflow data interval."
+            ),
         ),
     },
 ) as dag:
@@ -38,7 +42,7 @@ with DAG(
         task_id="run_pipeline",
         name="ifup-sen3-lst",
         image="docker.io/fredsdev/ifup:0.1.3",
-        cmds=["ifup"],
+        cmds=["/opt/ifup/entrypoint.sh", "ifup"],
         arguments=[
             "run",
             "sen3_lst",
@@ -51,6 +55,13 @@ with DAG(
                 ]) | tojson }}
             }""",
         ],
+        namespace="ifup",
+        env_from=[
+            k8s.V1EnvFromSource(
+                secret_ref=k8s.V1SecretEnvSource(name="ifup-secrets")
+            )
+        ],
+        in_cluster=True,
         get_logs=True,
         is_delete_operator_pod=True,
     )
